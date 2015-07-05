@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="frontend.maven.plugin.console.support.feature"
+      label="Frontend Maven Plugin Console Support"
+      version="1.0.0.qualifier">
+
+   <license url="">
+      BSD
+   </license>
+
+   <plugin
+         id="frontend.maven.plugin.console.support"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

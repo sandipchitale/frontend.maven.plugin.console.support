@@ -22,14 +22,21 @@
          point="org.eclipse.ui.console.consolePatternMatchListeners">
 	<consolePatternMatchListener
        class="frontend.FrontendMavenPluginOutputFileMatcher"
+       id="frontend.fileMatcherESLint"
        flags="MULTILINE"
-       id="frontend.fileMatcher"
        regex="at (.*)\((\d+),(\d+)\):$">
          <enablement>
-              <test
-                    property="org.eclipse.ui.console.consoleTypeTest"
-                    value="org.eclipse.debug.ui.ProcessConsoleType">
-              </test>
+              <or>
+                 <test
+                       property="org.eclipse.ui.console.consoleTypeTest"
+                       value="org.eclipse.debug.ui.ProcessConsoleType">
+                 </test>
+                 <test
+                       forcePluginActivation="true"
+                       property="frontend.consoleInstanceOfTest"
+                       value="org.eclipse.m2e.core.ui.internal.console.MavenConsole">
+                 </test>
+              </or>
          </enablement>
       </consolePatternMatchListener>
    </extension>
@@ -37,15 +44,21 @@
          point="org.eclipse.ui.console.consolePatternMatchListeners">
 	<consolePatternMatchListener
        class="frontend.FrontendMavenPluginOutputFileMatcher"
+       id="frontend.fileMatcherJSHint"
        flags="MULTILINE"
-       id="frontend.fileMatcherInMavenConsole"
-       regex="at (.*)\((\d+),(\d+)\):$">
+       regex="(.*): line (\d+), col (\d+),">
          <enablement>
-	        <test
-	              forcePluginActivation="true"
-	              property="frontend.consoleInstanceOfTest"
-	              value="org.eclipse.m2e.core.ui.internal.console.MavenConsole">
-	        </test>
+              <or>
+                 <test
+                       property="org.eclipse.ui.console.consoleTypeTest"
+                       value="org.eclipse.debug.ui.ProcessConsoleType">
+                 </test>
+                 <test
+                       forcePluginActivation="true"
+                       property="frontend.consoleInstanceOfTest"
+                       value="org.eclipse.m2e.core.ui.internal.console.MavenConsole">
+                 </test>
+              </or>
          </enablement>
       </consolePatternMatchListener>
    </extension>

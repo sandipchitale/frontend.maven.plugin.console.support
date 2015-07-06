@@ -25,7 +25,8 @@ import org.eclipse.ui.ide.IDE;
  * A hyperlink from a stack trace line of the form "at file.ext(l,c)"
  */
 public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
-	private static Pattern pattern = Pattern.compile("at (.*)\\((\\d+),(\\d+)\\):$");
+	private static Pattern ESLintPattern = Pattern.compile("at (.*)\\((\\d+),(\\d+)\\):$");
+	private static Pattern JSHintPattern = Pattern.compile("(.*): line (\\d+), col (\\d+),");
 
 	private TextConsole fConsole;
 
@@ -54,11 +55,9 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 	public void linkActivated() {
 		String fileName;
 		int lineNumber;
-		int columnNumber;
 		String linkText = getLinkText();
 		fileName = getFileName(linkText);
 		lineNumber = getLineNumber(linkText);
-		columnNumber = getColumnNumber(linkText);
 
 		// documents start at 0
 		if (fileName != null) {
@@ -114,11 +113,18 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 	 *                if unable to parse the type name
 	 */
 	protected String getFileName(String linkText) {
-		Matcher m = pattern.matcher(linkText);
+		Matcher m = ESLintPattern.matcher(linkText);
 		if (m.find()) {
 			String name = m.group(1);
 			return name;
 		}
+		
+		m = JSHintPattern.matcher(linkText);
+		if (m.find()) {
+			String name = m.group(1);
+			return name;
+		}
+		
 		return "";
 	}
 
@@ -127,7 +133,7 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 	 *
 	 */
 	protected int getLineNumber(String linkText) {
-		Matcher m = pattern.matcher(linkText);
+		Matcher m = ESLintPattern.matcher(linkText);
 		if (m.find()) {
 			String lineNumberText = m.group(2);
 			try {
@@ -135,6 +141,16 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 			} catch (NumberFormatException e) {
 			}
 		}
+		
+		m = JSHintPattern.matcher(linkText);
+		if (m.find()) {
+			String lineNumberText = m.group(2);
+			try {
+				return Integer.parseInt(lineNumberText);
+			} catch (NumberFormatException e) {
+			}
+		}
+		
 		return -1;
 	}
 	
@@ -143,7 +159,15 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 	 *
 	 */
 	protected int getColumnNumber(String linkText) {
-		Matcher m = pattern.matcher(linkText);
+		Matcher m = ESLintPattern.matcher(linkText);
+		if (m.find()) {
+			String columnNumberText = m.group(3);
+			try {
+				return Integer.parseInt(columnNumberText);
+			} catch (NumberFormatException e) {
+			}
+		}
+		m = JSHintPattern.matcher(linkText);
 		if (m.find()) {
 			String columnNumberText = m.group(3);
 			try {

@@ -3,7 +3,7 @@
    <description name="Frontend Maven Plugin Console Support">
       Frontend Maven Plugin Console Support
    </description>
-   <feature url="features/frontend.maven.plugin.console.support.feature_1.0.1.jar" id="frontend.maven.plugin.console.support.feature" version="1.0.1">
+   <feature url="features/frontend.maven.plugin.console.support.feature_1.0.2.jar" id="frontend.maven.plugin.console.support.feature" version="1.0.2">
       <category name="Frontend Maven Plugin Console Support"/>
    </feature>
    <category-def name="Frontend Maven Plugin Console Support" label="Frontend Maven Plugin Console Support"/>

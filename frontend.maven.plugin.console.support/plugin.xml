@@ -2,6 +2,23 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
+         name="frontend force startup"
+         point="org.eclipse.ui.startup">
+      <startup
+            class="frontend.Startup">
+      </startup>
+   </extension>
+    <extension
+          point="org.eclipse.core.expressions.propertyTesters">
+       <propertyTester
+             namespace="frontend"
+             type="org.eclipse.ui.console.IConsole"
+             class="frontend.ConsoleInstanceOfPropertyTester"
+             properties="consoleInstanceOfTest"
+             id="frontend.ConsoleInstanceOfPropertyTester"/>
+    </extension>
+
+   <extension
          point="org.eclipse.ui.console.consolePatternMatchListeners">
 	<consolePatternMatchListener
        class="frontend.FrontendMavenPluginOutputFileMatcher"
@@ -9,9 +26,27 @@
        id="frontend.fileMatcher"
        regex="at (.*)\((\d+),(\d+)\):$">
          <enablement>
-           <test property="org.eclipse.ui.console.consoleTypeTest" value="org.eclipse.debug.ui.ProcessConsoleType"/>
+              <test
+                    property="org.eclipse.ui.console.consoleTypeTest"
+                    value="org.eclipse.debug.ui.ProcessConsoleType">
+              </test>
          </enablement>
       </consolePatternMatchListener>
    </extension>
-
+   <extension
+         point="org.eclipse.ui.console.consolePatternMatchListeners">
+	<consolePatternMatchListener
+       class="frontend.FrontendMavenPluginOutputFileMatcher"
+       flags="MULTILINE"
+       id="frontend.fileMatcherInMavenConsole"
+       regex="at (.*)\((\d+),(\d+)\):$">
+         <enablement>
+	        <test
+	              forcePluginActivation="true"
+	              property="frontend.consoleInstanceOfTest"
+	              value="org.eclipse.m2e.core.ui.internal.console.MavenConsole">
+	        </test>
+         </enablement>
+      </consolePatternMatchListener>
+   </extension>
 </plugin>

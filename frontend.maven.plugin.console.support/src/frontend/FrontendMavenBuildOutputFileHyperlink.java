@@ -26,7 +26,7 @@ import org.eclipse.ui.ide.IDE;
  */
 public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 	private static Pattern ESLintPattern = Pattern.compile("at (.*)\\((\\d+),(\\d+)\\):$");
-	private static Pattern JSHintPattern = Pattern.compile("(.*): line (\\d+), col (\\d+),");
+	private static Pattern JSHintPattern = Pattern.compile(" ([^ ]+): line (\\d+), col (\\d+),");
 
 	private TextConsole fConsole;
 

@@ -46,7 +46,7 @@
        class="frontend.FrontendMavenPluginOutputFileMatcher"
        id="frontend.fileMatcherJSHint"
        flags="MULTILINE"
-       regex="(.*): line (\d+), col (\d+),">
+       regex=" ([^ ]+): line (\d+), col (\d+),">
          <enablement>
               <or>
                  <test

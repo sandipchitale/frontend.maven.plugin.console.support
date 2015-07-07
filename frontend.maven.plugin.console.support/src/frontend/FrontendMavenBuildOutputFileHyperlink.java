@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
@@ -25,8 +26,12 @@ import org.eclipse.ui.ide.IDE;
  * A hyperlink from a stack trace line of the form "at file.ext(l,c)"
  */
 public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
-	private static Pattern ESLintPattern = Pattern.compile("at (.*)\\((\\d+),(\\d+)\\):$");
-	private static Pattern JSHintPattern = Pattern.compile(" ([^ ]+): line (\\d+), col (\\d+),");
+	static Pattern ESLintPattern = Pattern.compile("(WARNING|ERROR)..39m at (.*)\\((\\d+),(\\d+)\\):[\\r\\n][\\r\\n]?.*\\[INFO\\].+33m(.+).\\[39m$", Pattern.MULTILINE);
+	static Pattern JSHintPattern = Pattern.compile(" ([^ ]+): line (\\d+), col (\\d+),(.+)$");
+
+	enum MESSAGE_TYPE {
+		UNKNOWN, INFO, WARNING, ERROR
+	};
 
 	private TextConsole fConsole;
 
@@ -62,7 +67,7 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 		// documents start at 0
 		if (fileName != null) {
 			try {
-				IFile sourceFile = getSourceModule(fileName);
+				IFile sourceFile = (IFile) getResource(fileName);
 				IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 				if (activePage != null) {
 					IMarker marker = sourceFile.createMarker(IMarker.TEXT);
@@ -100,11 +105,22 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 		return null;
 	}
 
-	protected IFile getSourceModule(String fileName) throws CoreException {
+	static IResource getResource(String fileName) throws CoreException {
 		IFile f = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(fileName));
 		return f;
 	}
 
+	static MESSAGE_TYPE getMessageType(String linkText) {
+		Matcher m = ESLintPattern.matcher(linkText);
+		if (m.find()) {
+			String type = m.group(1);
+			MESSAGE_TYPE message_type = MESSAGE_TYPE.valueOf(type);
+			return (message_type == null ? MESSAGE_TYPE.WARNING : message_type);
+		}
+
+		return MESSAGE_TYPE.WARNING;
+	}
+	
 	/**
 	 * Returns the fully qualified name of the type to open
 	 *
@@ -112,19 +128,19 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 	 * @exception CoreException
 	 *                if unable to parse the type name
 	 */
-	protected String getFileName(String linkText) {
+	static String getFileName(String linkText) {
 		Matcher m = ESLintPattern.matcher(linkText);
 		if (m.find()) {
-			String name = m.group(1);
+			String name = m.group(2);
 			return name;
 		}
-		
+
 		m = JSHintPattern.matcher(linkText);
 		if (m.find()) {
 			String name = m.group(1);
 			return name;
 		}
-		
+
 		return "";
 	}
 
@@ -132,16 +148,16 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 	 * Returns the line number associated with the stack trace or -1 if none.
 	 *
 	 */
-	protected int getLineNumber(String linkText) {
+	static int getLineNumber(String linkText) {
 		Matcher m = ESLintPattern.matcher(linkText);
 		if (m.find()) {
-			String lineNumberText = m.group(2);
+			String lineNumberText = m.group(3);
 			try {
 				return Integer.parseInt(lineNumberText);
 			} catch (NumberFormatException e) {
 			}
 		}
-		
+
 		m = JSHintPattern.matcher(linkText);
 		if (m.find()) {
 			String lineNumberText = m.group(2);
@@ -150,18 +166,18 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 			} catch (NumberFormatException e) {
 			}
 		}
-		
+
 		return -1;
 	}
-	
+
 	/**
 	 * Returns the column number associated with the stack trace or -1 if none.
 	 *
 	 */
-	protected int getColumnNumber(String linkText) {
+	static int getColumnNumber(String linkText) {
 		Matcher m = ESLintPattern.matcher(linkText);
 		if (m.find()) {
-			String columnNumberText = m.group(3);
+			String columnNumberText = m.group(4);
 			try {
 				return Integer.parseInt(columnNumberText);
 			} catch (NumberFormatException e) {
@@ -176,6 +192,18 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 			}
 		}
 		return -1;
+	}
+	
+	static String getMessage(String linkText) {
+		Matcher m = ESLintPattern.matcher(linkText);
+		if (m.find()) {
+			return m.group(5);
+		}
+		m = JSHintPattern.matcher(linkText);
+		if (m.find()) {
+			return m.group(5);			
+		}
+		return null;
 	}
 
 	/**
@@ -198,11 +226,9 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 			IDocument document = getConsole().getDocument();
 			IRegion region = getConsole().getRegion(this);
 			int regionOffset = region.getOffset();
+			int regionLength = region.getLength();
 
-			int lineNumber = document.getLineOfOffset(regionOffset);
-			IRegion lineInformation = document.getLineInformation(lineNumber);
-			int lineOffset = lineInformation.getOffset();
-			String line = document.get(lineOffset, lineInformation.getLength());
+			String line = document.get(regionOffset, regionLength);
 
 			return line.trim();
 		} catch (BadLocationException e) {

@@ -2,7 +2,7 @@
 <feature
       id="frontend.maven.plugin.console.support.feature"
       label="Frontend Maven Plugin Console Support"
-      version="1.0.3">
+      version="1.0.4">
 
    <license url="">
       BSD

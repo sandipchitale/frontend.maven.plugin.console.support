@@ -22,9 +22,9 @@
          point="org.eclipse.ui.console.consolePatternMatchListeners">
 	<consolePatternMatchListener
        class="frontend.FrontendMavenPluginOutputFileMatcher"
+       flags="MULTILINE"
        id="frontend.fileMatcherESLint"
-       flags="MULTILINE"
-       regex="at (.*)\((\d+),(\d+)\):$">
+       regex="(WARNING|ERROR)..39m at (.*)\((\d+),(\d+)\):[\r\n][\r\n]?.*\[INFO\].+33m(.+).\[39m$">
          <enablement>
               <or>
                  <test
@@ -39,27 +39,24 @@
               </or>
          </enablement>
       </consolePatternMatchListener>
-   </extension>
-   <extension
-         point="org.eclipse.ui.console.consolePatternMatchListeners">
-	<consolePatternMatchListener
+ <consolePatternMatchListener
        class="frontend.FrontendMavenPluginOutputFileMatcher"
-       id="frontend.fileMatcherJSHint"
        flags="MULTILINE"
+       id="frontend.fileMatcherJSHint"
        regex=" ([^ ]+): line (\d+), col (\d+),">
-         <enablement>
-              <or>
-                 <test
-                       property="org.eclipse.ui.console.consoleTypeTest"
-                       value="org.eclipse.debug.ui.ProcessConsoleType">
-                 </test>
-                 <test
-                       forcePluginActivation="true"
-                       property="frontend.consoleInstanceOfTest"
-                       value="org.eclipse.m2e.core.ui.internal.console.MavenConsole">
-                 </test>
-              </or>
-         </enablement>
-      </consolePatternMatchListener>
+    <enablement>
+       <or>
+          <test
+                property="org.eclipse.ui.console.consoleTypeTest"
+                value="org.eclipse.debug.ui.ProcessConsoleType">
+          </test>
+          <test
+                forcePluginActivation="true"
+                property="frontend.consoleInstanceOfTest"
+                value="org.eclipse.m2e.core.ui.internal.console.MavenConsole">
+          </test>
+       </or>
+    </enablement>
+ </consolePatternMatchListener>
    </extension>
 </plugin>

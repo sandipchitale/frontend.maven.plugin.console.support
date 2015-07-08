@@ -27,7 +27,7 @@ import org.eclipse.ui.ide.IDE;
  */
 public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 	static Pattern ESLintPattern = Pattern.compile("(WARNING|ERROR)..39m at (.*)\\((\\d+),(\\d+)\\):[\\r\\n][\\r\\n]?.*\\[INFO\\].+33m(.+).\\[39m$", Pattern.MULTILINE);
-	static Pattern JSHintPattern = Pattern.compile(" ([^ ]+): line (\\d+), col (\\d+),(.+)$");
+	static Pattern JSHintPattern = Pattern.compile("\\[INFO\\] ([^ ]+): line (\\d+), col (\\d+), ?(.*)$");
 
 	enum MESSAGE_TYPE {
 		UNKNOWN, INFO, WARNING, ERROR
@@ -201,7 +201,7 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 		}
 		m = JSHintPattern.matcher(linkText);
 		if (m.find()) {
-			return m.group(5);			
+			return m.group(4);			
 		}
 		return null;
 	}

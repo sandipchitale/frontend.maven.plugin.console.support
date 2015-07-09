@@ -1,5 +1,7 @@
 package frontend;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -16,27 +18,36 @@ public class FrontendMavenPluginOutputFileMatcher implements IPatternMatchListen
 
 	private static final String FRONTEND_PROBLEM = "frontend.problemmarker";
 
+	static AtomicBoolean cleanupFrontendMarkers = new AtomicBoolean(true);
+	
 	@Override
 	public void connect(TextConsole textConsole) {
-		// Cleanup markers from previous session
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-		try {
-			IMarker[] markers = workspaceRoot.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_INFINITE);
-			for (IMarker marker : markers) {
-				if (marker.getAttribute(FRONTEND_PROBLEM, false)) {
-					marker.delete();
+	}
+
+	void cleanupFrontendMarkers() {
+		if (cleanupFrontendMarkers.compareAndSet(true, false)) {
+			// Cleanup markers from previous session
+			IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+			try {
+				IMarker[] markers = workspaceRoot.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_INFINITE);
+				for (IMarker marker : markers) {
+					if (marker.getAttribute(FRONTEND_PROBLEM, false)) {
+						marker.delete();
+					}
 				}
+			} catch (CoreException e) {
 			}
-		} catch (CoreException e) {
 		}
 	}
 
 	@Override
 	public void disconnect() {
+		cleanupFrontendMarkers.set(true);
 	}
 
 	@Override
 	public void matchFound(PatternMatchEvent patternMatchEvent) {
+		cleanupFrontendMarkers();
 		TextConsole textConsole = (TextConsole) patternMatchEvent.getSource();
 		try {
 			int offset = patternMatchEvent.getOffset();

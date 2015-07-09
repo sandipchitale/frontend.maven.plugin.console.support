@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Frontend Maven Plugin Console Support
 Bundle-SymbolicName: frontend.maven.plugin.console.support;singleton:=true
-Bundle-Version: 1.0.5
+Bundle-Version: 1.0.6
 Bundle-Vendor: Sandip Chitale
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime,

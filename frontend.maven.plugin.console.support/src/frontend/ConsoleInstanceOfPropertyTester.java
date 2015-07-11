@@ -20,7 +20,11 @@ public class ConsoleInstanceOfPropertyTester extends PropertyTester {
 	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
         IConsole console = (IConsole) receiver;
-        Class<? extends IConsole> clazz = console.getClass();
+        return isExpectedConsole(console, expectedValue);
+    }
+
+	static boolean isExpectedConsole(IConsole console, Object expectedValue) {
+		Class<? extends IConsole> clazz = console.getClass();
         String className = clazz.getName();
         if (className.equals(expectedValue)) {
         	return true;
@@ -37,6 +41,6 @@ public class ConsoleInstanceOfPropertyTester extends PropertyTester {
             }
 		}
         return false;
-    }
+	}
 
 }

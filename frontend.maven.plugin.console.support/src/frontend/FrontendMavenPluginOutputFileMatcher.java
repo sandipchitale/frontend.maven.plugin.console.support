@@ -19,9 +19,13 @@ public class FrontendMavenPluginOutputFileMatcher implements IPatternMatchListen
 	private static final String FRONTEND_PROBLEM = "frontend.problemmarker";
 
 	static AtomicBoolean cleanupFrontendMarkers = new AtomicBoolean(true);
+
+	private TextConsole textConsole;
 	
 	@Override
 	public void connect(TextConsole textConsole) {
+		this.textConsole = textConsole;
+		
 	}
 
 	void cleanupFrontendMarkers() {
@@ -42,11 +46,20 @@ public class FrontendMavenPluginOutputFileMatcher implements IPatternMatchListen
 
 	@Override
 	public void disconnect() {
+		this.textConsole = null;
 		cleanupFrontendMarkers.set(true);
 	}
 
+	private long lastTimeMillis = System.currentTimeMillis();
 	@Override
 	public void matchFound(PatternMatchEvent patternMatchEvent) {
+		if (ConsoleInstanceOfPropertyTester.isExpectedConsole(textConsole, "org.eclipse.m2e.core.ui.internal.console.MavenConsole")) {
+			long currentTimeMillis = System.currentTimeMillis();
+			if (currentTimeMillis - lastTimeMillis > 60000) {
+				cleanupFrontendMarkers.set(true);
+			}
+			lastTimeMillis = currentTimeMillis;
+		}
 		cleanupFrontendMarkers();
 		TextConsole textConsole = (TextConsole) patternMatchEvent.getSource();
 		try {

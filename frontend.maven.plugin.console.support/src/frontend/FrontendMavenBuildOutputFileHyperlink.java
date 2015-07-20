@@ -75,7 +75,6 @@ public class FrontendMavenBuildOutputFileHyperlink implements IHyperlink {
 					if (lineNumber != -1) {
 						map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
 					}
-					map.put(IDE.EDITOR_ID_ATTR, "org.eclipse.ui.DefaultTextEditor");
 					marker.setAttributes(map);
 					IDE.openEditor(activePage, marker);
 					marker.delete();
